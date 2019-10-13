@@ -1,0 +1,12 @@
+{
+    "full_name": "First Last",
+    "email": "me@example.com",
+    "project_name": "hello-world",
+    "package_name": "{{ cookiecutter.project_name|replace('-', '_') }}",
+    "sphinx_project": "{{ cookiecutter.package_name }}",
+    "script_name": "{{ cookiecutter.project_name }}",
+    "github_username": "github_username",
+    "travis_username": "{{ cookiecutter.github_username }}",
+    "version": "0.0.1",
+    "description": "Description"
+}

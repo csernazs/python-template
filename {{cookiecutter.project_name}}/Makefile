@@ -1,0 +1,52 @@
+
+PYTHON ?= python3
+
+.PHONY: doc
+
+.venv/bin/pip:
+	${PYTHON} -m venv .venv
+	.venv/bin/pip3 install --upgrade pip wheel
+
+venv: .venv/bin/pip
+
+dev: venv
+	.venv/bin/pip3 install -e .[dev]
+
+cs: venv
+	.venv/bin/pylint {{ cookiecutter.package_name }}
+	.venv/bin/pycodestyle {{ cookiecutter.package_name }}
+
+mrproper: clean
+	rm -rf dist
+
+clean: cov-clean doc-clean
+	rm -rf .venv *.egg-info build .eggs __pycache__ */__pycache__ .tox
+
+quick-test:
+	.venv/bin/pytest tests -s -vv
+
+test:
+	tox
+
+test-pdb:
+	.venv/bin/pytest tests -s -vv --pdb
+
+cov: cov-clean
+	.venv/bin/pytest --cov {{ cookiecutter.package_name }} --cov-report=term --cov-report=html --cov-report=xml tests
+
+cov-clean:
+	rm -rf htmlcov
+
+doc: .venv
+	.venv/bin/sphinx-build -M html doc doc/_build $(SPHINXOPTS) $(O)
+
+doc-clean:
+	rm -rf doc/_build
+
+changes:
+	reno report --output CHANGES.rst --no-show-source
+
+release-pip:
+	.venv/bin/pip install bumpversion
+
+pre-release: clean doc-clean dev release-pip quick-test
